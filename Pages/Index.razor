@@ -1,0 +1,165 @@
+﻿@page "/"
+
+<PageTitle>QI Test Runner</PageTitle>
+
+<div class="row">
+    <div class="col px-5">
+        <div style="height:40px"></div>
+        <div class="card" style="width: 25rem;">
+            <div class="card-body">
+                <h5 class="card-title">@qi.title</h5>
+                <h6 class="card-subtitle mb-2 text-muted">@qi.comment1</h6>
+                <h6 class="card-subtitle mb-2 text-muted">@qi.comment2</h6>
+                @if (qi.sweep > 0)
+                {
+                    <h6 class="card-subtitle mb-2 text-muted">Sweep @qi.sweep</h6>
+                }
+
+                <div class="row">
+                    <div class="col-4 text-end">Date</div>
+                    <div class="col">@DateTime.Now.ToLongDateString()</div>
+                </div>
+                <div class="row" @onclick="() => { this.ResetTime(); }">
+                    <div class="col-4 text-end mt-1">Elapsed</div>
+                    <div class="col"><h3>@DateTime.Now.Subtract(qi.startTime).ToString(@"hh\:mm\:ss")</h3></div>
+                </div>
+
+                <div class="row">
+                    <div class="col-8 text-end">Current Experiment Volts</div>
+                    <div class="col">@qi.expiermentVolts V</div>
+                </div>
+                <div class="row">
+                    <div class="col-8 text-end">Max Experiment Volts</div>
+                    <div class="col">@qi.maxExpiermentVolts V</div>
+                </div>
+                <div class="row" @onclick="() => { qi.direction=!qi.direction; }">
+                    <div class="col-8 text-end">Polarity</div>
+                    @if (qi.direction)
+                    {
+                        <div class="col"><i class="fa-regular fa-plus-large"></i> <i class="fa-light fa-left"></i> <i class="fa-regular fa-minus-large"></i></div>
+                    }
+                    else
+                    {
+                        <div class="col"><i class="fa-regular fa-minus-large"></i> <i class="fa-light fa-right"></i> <i class="fa-regular fa-plus-large"></i></div>
+                    }
+                </div>
+
+                <div class="progress">
+                    @if (qi.direction)
+                    {
+                        <div class="" role="progressbar" style="width: @VoltBarSpacer()%"></div>
+                        <div class="progress-bar bg-warning" role="progressbar" style="width: @VoltBarMax()%"></div>
+                        <div class="progress-bar bg-danger" role="progressbar" style="width: @VoltBarVolts()%"></div>
+                    }
+                    else
+                    {
+                        <div class="progress-bar bg-danger" role="progressbar" style="width: @VoltBarVolts()%"></div>
+                        <div class="progress-bar bg-warning" role="progressbar" style="width: @VoltBarMax()%"></div>
+                    }
+                </div>
+
+            </div>
+        </div>
+
+
+        <div class="card mt-3" style="width: 25rem;">
+            <div class="card-body">
+                @if (qi.siglent.active)
+                {
+                    //<div class="float-end"><button type="button" class="btn btn-success btn-sm" @onclick="() => { qi.siglent.Start(); }">Connect</button></div>
+                    <div class="float-end"><button type="button" class="btn btn-success btn-sm" @onclick="() => { qi.siglent.active=true; }">Connect</button></div>
+                }
+                <h5 class="card-title">Siglent SPD1168X</h5>
+                @if (!qi.siglent.active)
+                {
+                    <div class="row">
+                        <div class="col-7 text-end">Set Volts</div>
+                        <div class="col">@qi.siglent.setVolts.ToString("0.000") V</div>
+                    </div>
+                    <div class="progress">
+                        <div class="progress-bar" role="progressbar" aria-label="Siglent Voltage" style="width: @(qi.siglent.setVolts * 100.0 / 15.0)%" aria-valuenow="25" aria-valuemin="0" aria-valuemax="100"></div>
+                    </div>
+                    <div class="row">
+                        <div class="col-7 text-end">Set Current</div>
+                        <div class="col">@qi.siglent.setCurrent.ToString("0.000") A</div>
+                    </div>
+                    <div class="row mt-3">
+                        <div class="col-7 text-end"><label class="form-check-label" for="sigEnabled">Enabled</label></div>
+                        <div class="col">
+                            <div class="form-check form-switch">
+                                <input class="form-check-input" type="checkbox" role="switch" id="sigEnabled" @bind="qi.siglent.powerEnabled">
+                            </div>
+
+                        </div>
+                    </div>
+                    @if (qi.siglent.powerEnabled)
+                    {
+                        <div class="row">
+                            <div class="col-7 text-end">Mesured Volts</div>
+                            <div class="col">@qi.siglent.mesuredVolts.ToString("0.000") V</div>
+                        </div>
+                        <div class="row">
+                            <div class="col-7 text-end">Mesured Current</div>
+                            <div class="col">@qi.siglent.mesuredCurrent.ToString("0.000") A</div>
+                        </div>
+                        <div class="row">
+                            <div class="col-7 text-end">Mesured Power</div>
+                            <div class="col">@qi.siglent.mesuredPower.ToString("0.000") W</div>
+                        </div>
+                    }
+                }
+            </div>
+        </div>
+
+        <div style="height:100px"></div>
+    </div>
+    <div class="col" style="background-color:azure">
+        <div class="input-group mb-3">
+            <span class="input-group-text" id="basic-addon1">Title</span>
+            <input type="text" class="form-control" @bind="qi.title">
+        </div>
+        <div class="input-group mb-3">
+            <span class="input-group-text" id="basic-addon1">Comment</span>
+            <input type="text" class="form-control" @bind="qi.comment1">
+        </div>
+        <div class="input-group mb-3">
+            <span class="input-group-text" id="basic-addon1">Comment</span>
+            <input type="text" class="form-control" @bind="qi.comment2">
+        </div>
+        <div class="input-group mb-3">
+            <span class="input-group-text" id="basic-addon1">Sweep</span>
+            <input type="number" class="form-control" @bind="qi.sweep">
+        </div>
+        <div class="input-group mb-3">
+            <span class="input-group-text" id="basic-addon1">Instruction</span>
+            <input type="text" class="form-control" @bind="qi.instruction">
+        </div>
+        <div class="input-group mb-3">
+            <span class="input-group-text" id="basic-addon1">expiermentVolts</span>
+            <input type="number" class="form-control" @bind="qi.expiermentVolts">
+        </div>
+        <div class="input-group mb-3">
+            <span class="input-group-text" id="basic-addon1">maxExpiermentVolts</span>
+            <input type="number" class="form-control" @bind="qi.maxExpiermentVolts">
+        </div>
+        <div class="input-group mb-3">
+            <span class="input-group-text" id="basic-addon1">physicalExpiermentVoltsLimit</span>
+            <input type="number" class="form-control" @bind="qi.physicalExpiermentVoltsLimit">
+        </div>
+
+        <div class="input-group mb-3">
+            <span class="input-group-text" id="basic-addon1">siglent.setVolts</span>
+            <input type="number" class="form-control" @bind="qi.siglent.setVolts">
+        </div>
+
+        <div class="input-group mb-3">
+            <span class="input-group-text" id="basic-addon1">siglent.setCurrent</span>
+            <input type="number" class="form-control" @bind="qi.siglent.setCurrent">
+        </div>
+
+    </div>
+    <div class="col" style="background-color:white">
+    </div>
+
+</div>
+
