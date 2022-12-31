@@ -10,11 +10,16 @@
                 <h5 class="card-title">@qi.title</h5>
                 <h6 class="card-subtitle mb-2 text-muted">@qi.comment1</h6>
                 <h6 class="card-subtitle mb-2 text-muted">@qi.comment2</h6>
-                @if (qi.sweep > 0)
-                {
-                    <h6 class="card-subtitle mb-2 text-muted">Sweep @qi.sweep</h6>
-                }
-
+                <h6 class="card-subtitle mb-2 text-muted">
+                    @if (qi.sweep > 0)
+                    {
+                        <span>Sweep @qi.sweep</span>
+                    }
+                    @if (qi.sweepPause > 0)
+                    {
+                        <span> - Pause Seconds: @qi.sweepPause</span>
+                    }
+                </h6>
                 <div class="row">
                     <div class="col-4 text-end">Date</div>
                     <div class="col">@DateTime.Now.ToLongDateString()</div>
@@ -64,13 +69,13 @@
 
         <div class="card mt-3" style="width: 25rem;">
             <div class="card-body">
-                @if (qi.siglent.active)
+                @if (!qi.siglent.active)
                 {
-                    //<div class="float-end"><button type="button" class="btn btn-success btn-sm" @onclick="() => { qi.siglent.Start(); }">Connect</button></div>
-                    <div class="float-end"><button type="button" class="btn btn-success btn-sm" @onclick="() => { qi.siglent.active=true; }">Connect</button></div>
+                    <div class="float-end"><button type="button" class="btn btn-success btn-sm" @onclick="() => { qi.siglent.Start(); }">Connect</button></div>
+                    //<div class="float-end"><button type="button" class="btn btn-success btn-sm" @onclick="() => { qi.siglent.active=true; }">Connect</button></div>
                 }
                 <h5 class="card-title">Siglent SPD1168X</h5>
-                @if (!qi.siglent.active)
+                @if (qi.siglent.active)
                 {
                     <div class="row">
                         <div class="col-7 text-end">Set Volts</div>
@@ -156,9 +161,18 @@
             <span class="input-group-text" id="basic-addon1">siglent.setCurrent</span>
             <input type="number" class="form-control" @bind="qi.siglent.setCurrent">
         </div>
+        <div class="input-group mb-3">
+            <span class="input-group-text" id="basic-addon1">sweepPause</span>
+            <input type="number" class="form-control" @bind="qi.sweepPause">
+        </div>
 
     </div>
     <div class="col" style="background-color:white">
+        <h2>Sweep Programs</h2>
+        @foreach (var program in qi.programs)
+        {
+            <div><button type="button" class="btn btn-secondary" @onclick='() => { qi.instruction=program; }'>@program</button></div>
+        }
     </div>
 
 </div>

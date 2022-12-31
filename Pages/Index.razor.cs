@@ -42,15 +42,18 @@ namespace QiLabMonitor.Pages
         {
             InternalTimer.Change(200, 200);
 
-            OnTimerChanged += (o, e) =>
+            if (OnTimerChanged == null) { OnTimerChanged += (o, e) => { }; } // odd, this gets set twice, and does not work if I only set it once.
+            else
             {
-                this.InvokeAsync(() =>
+                OnTimerChanged += (o, e) =>
                 {
-                    this.qi.OnTick();
-                    this.StateHasChanged();
-                });
-            };
-
+                    this.InvokeAsync(() =>
+                    {
+                        this.qi.OnTick();
+                        this.StateHasChanged();
+                    });
+                };
+            }
             return base.OnInitializedAsync();
         }
 
